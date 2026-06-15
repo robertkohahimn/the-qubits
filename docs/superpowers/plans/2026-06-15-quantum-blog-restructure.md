@@ -63,7 +63,7 @@
 Run:
 ```bash
 npm install express@^4.21.2 @prisma/client@^5.22.0 react-markdown@^9.0.1 remark-gfm@^4.0.0 dotenv@^16.4.7
-npm install -D prisma@^5.22.0 vitest@^2.1.8 @testing-library/react@^16.1.0 @testing-library/jest-dom@^6.6.3 @testing-library/user-event@^14.5.2 jsdom@^25.0.1 supertest@^7.0.0 gray-matter@^4.0.3 concurrently@^9.1.0 cross-env@^7.0.3
+npm install -D prisma@^5.22.0 vitest@^2.1.8 @testing-library/react@^16.1.0 @testing-library/jest-dom@^6.6.3 @testing-library/user-event@^14.5.2 jsdom@^25.0.1 supertest@^7.0.0 gray-matter@^4.0.3 concurrently@^9.1.0 cross-env@^7.0.3 dotenv-cli@^8.0.0
 ```
 Expected: installs succeed; `package.json` lists the packages.
 
@@ -80,7 +80,7 @@ Expected: installs succeed; `package.json` lists the packages.
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "node prisma/seed.js",
-    "db:test:setup": "cross-env $(grep -v '^#' .env.test | xargs) prisma migrate deploy",
+    "db:test:setup": "dotenv -e .env.test -- prisma migrate deploy",
     "test": "npm run test:client && npm run test:server",
     "test:client": "vitest run",
     "test:server": "vitest run -c vitest.server.config.js"
@@ -124,26 +124,29 @@ Add these lines to the end of `.gitignore`:
 
 ```
 # Postgres connection (Railway provides this in production)
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/qubits?schema=public"
+# Local dev uses the Docker "shared-postgres" container on host port 5434.
+DATABASE_URL="postgresql://postgres:postgres@localhost:5434/qubits?schema=public"
 # Express port (Railway injects PORT in production)
 PORT=3001
 # Frontend API base (defaults to /api; only override for split deploys)
 VITE_API_URL=/api
 ```
 
-- [ ] **Step 3: Create `.env` (local dev) — adjust to your local Postgres**
+- [ ] **Step 3: Create `.env` (local dev) — Docker `shared-postgres`, host port 5434**
 
 ```
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/qubits?schema=public"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5434/qubits?schema=public"
 PORT=3001
 ```
 
-- [ ] **Step 4: Create `.env.test` (isolated test DB)**
+- [ ] **Step 4: Create `.env.test` (isolated test DB on the same server)**
 
 ```
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/qubits_test?schema=public"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5434/qubits_test?schema=public"
 PORT=3002
 ```
+
+> **Note (already provisioned):** the `qubits` and `qubits_test` databases already exist in the running Docker container `shared-postgres` (postgres:16, host port 5434, user/pass `postgres`/`postgres`). Do **not** run `createdb`; just point at them.
 
 - [ ] **Step 5: Verify `.env` is ignored**
 
@@ -249,7 +252,7 @@ git commit -m "feat: add Prisma schema (Post + enums) and client singleton"
 **Files:**
 - Create: `prisma/migrations/**` (generated), plus a manual migration for the partial index
 
-**Prereq:** a local Postgres reachable at the `.env` `DATABASE_URL`, with database `qubits` created.
+**Prereq:** the Docker `shared-postgres` container is running (host port 5434) and the `qubits` database already exists (both provisioned). Prisma auto-loads `.env`, so the migrate commands target port 5434.
 
 - [ ] **Step 1: Create the initial migration**
 
@@ -326,8 +329,12 @@ import '@testing-library/jest-dom/vitest'
 
 - [ ] **Step 3: Create `vitest.server.config.js`**
 
+Load `.env.test` here (at config evaluation, before any test module — therefore before the Prisma client is constructed) and inject it via `test.env`. Doing this in a `setupFile` would be too late: ESM hoists the `import { prisma } from '../db.js'` above any `dotenv.config()` call in the file body, so the client would be built against the wrong `DATABASE_URL`.
 ```js
 import { defineConfig } from 'vitest/config'
+import dotenv from 'dotenv'
+
+const testEnv = dotenv.config({ path: '.env.test' }).parsed || {}
 
 export default defineConfig({
   test: {
@@ -336,19 +343,18 @@ export default defineConfig({
     include: ['server/**/*.test.js', 'prisma/**/*.test.js'],
     setupFiles: './server/test/setup.js',
     fileParallelism: false, // share one test DB; avoid cross-file races
+    env: testEnv, // DATABASE_URL from .env.test, available before modules load
   },
 })
 ```
 
 - [ ] **Step 4: Create `server/test/setup.js`**
 
+`DATABASE_URL` is already injected via `test.env` (Step 3), so this file only handles per-test DB reset and teardown.
 ```js
-import dotenv from 'dotenv'
 import { beforeEach, afterAll } from 'vitest'
 import { resetDb } from './factory.js'
 import { prisma } from '../db.js'
-
-dotenv.config({ path: '.env.test' })
 
 beforeEach(async () => {
   await resetDb()
@@ -391,13 +397,10 @@ export async function createPost(overrides = {}) {
 }
 ```
 
-- [ ] **Step 6: Create the test database and apply migrations**
+- [ ] **Step 6: Apply migrations to the (already-created) test database**
 
-Run:
-```bash
-createdb qubits_test 2>/dev/null || true
-npm run db:test:setup
-```
+The `qubits_test` database already exists in the Docker `shared-postgres` container, so do not run `createdb`.
+Run: `npm run db:test:setup`
 Expected: migrations apply to `qubits_test`; "Database schema is up to date".
 
 - [ ] **Step 7: Sanity-check the harness with a throwaway test**
@@ -1195,6 +1198,7 @@ Expected: FAIL — cannot import `loadPosts` from `./seed.js`.
 - [ ] **Step 5: Implement `prisma/seed.js`**
 
 ```js
+import 'dotenv/config' // load .env so `node prisma/seed.js` has DATABASE_URL (Prisma CLI auto-loads, plain node does not)
 import { readdirSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join, basename } from 'node:path'
