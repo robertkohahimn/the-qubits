@@ -5,8 +5,8 @@ import { getAdjacent } from './queries.js'
 
 describe('getHomeData', () => {
   it('returns featured, theory, and recent excluding those two', async () => {
-    const featured = await createPost({ slug: 'feat', featured: true, publishedAt: new Date('2026-02-01Z') })
-    const theory = await createPost({ slug: 'th', category: 'Theory', publishedAt: new Date('2026-01-20Z') })
+    await createPost({ slug: 'feat', featured: true, publishedAt: new Date('2026-02-01Z') })
+    await createPost({ slug: 'th', category: 'Theory', publishedAt: new Date('2026-01-20Z') })
     await createPost({ slug: 'r1', publishedAt: new Date('2026-01-10Z') })
     const home = await getHomeData()
     expect(home.featured.slug).toBe('feat')
