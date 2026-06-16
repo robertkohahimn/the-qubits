@@ -1,0 +1,29 @@
+.home-grid {
+  grid-template-columns: 1.1fr 0.9fr;
+}
+
+.right-column {
+  display: grid;
+  grid-template-rows: 55% 45%;
+  height: 100vh;
+  border-left: var(--hairline-dark);
+}
+
+@media (max-width: 900px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    height: auto;
+    overflow: visible;
+  }
+  .right-column {
+    grid-template-rows: auto auto;
+    height: auto;
+    border-left: none;
+  }
+  .pane-dark,
+  .pane-accent,
+  .pane-light {
+    min-height: 100vh;
+  }
+}

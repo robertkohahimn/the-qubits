@@ -1,0 +1,24 @@
+.pill-btn {
+  padding: 0.8rem 2rem;
+  border-radius: var(--radius-pill);
+  border: 4px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.pill-btn:hover {
+  background: currentColor;
+  color: var(--c-bg);
+}
