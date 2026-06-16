@@ -42,8 +42,8 @@ export default function PillButton({
       style={baseStyle}
       href={href || undefined}
       onClick={onClick}
-      onMouseEnter={(hoverBg || hoverColor) ? handleMouseEnter : undefined}
-      onMouseLeave={(hoverBg || hoverColor) ? handleMouseLeave : undefined}
+      onMouseEnter={(hoverBg || hoverColor || hoverBorderColor) ? handleMouseEnter : undefined}
+      onMouseLeave={(hoverBg || hoverColor || hoverBorderColor) ? handleMouseLeave : undefined}
       {...rest}
     >
       {children}

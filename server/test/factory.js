@@ -1,11 +1,14 @@
 import { prisma } from '../db.js'
 
+let seq = 0
+
 export async function resetDb() {
   // Truncate restarts identity so id ordering is deterministic per test.
   await prisma.$executeRawUnsafe('TRUNCATE TABLE "Post" RESTART IDENTITY CASCADE;')
+  // Keep the fixture sequence in lockstep with the reset DB ids.
+  seq = 0
 }
 
-let seq = 0
 export async function createPost(overrides = {}) {
   seq += 1
   const base = {

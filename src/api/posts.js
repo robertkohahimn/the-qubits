@@ -14,9 +14,9 @@ export function getPosts({ category, exclude = [], limit } = {}) {
 }
 
 export function getPost(slug) {
-  return apiFetch(`/posts/${slug}`)
+  return apiFetch(`/posts/${encodeURIComponent(slug)}`)
 }
 
 export function getRelated(slug, limit = 3) {
-  return apiFetch(`/posts/${slug}/related?limit=${limit}`)
+  return apiFetch(`/posts/${encodeURIComponent(slug)}/related?limit=${limit}`)
 }

@@ -36,7 +36,7 @@ export default function HeroPane({ post }) {
           <div className="data-label">converting logical states<br />to physical architecture</div>
         </div>
         <div>
-          <PillButton color="var(--p-teal)" href="#" style={{ marginRight: '1rem' }}>Back</PillButton>
+          <PillButton color="var(--p-teal)" style={{ marginRight: '1rem' }}>Back</PillButton>
           <PillButton color="var(--p-orange-line)" as={Link} to={`/article/${post.slug}`}>Next</PillButton>
         </div>
       </div>

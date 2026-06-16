@@ -1,9 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { getHome, getPosts, getPost, getRelated } from './posts.js'
 import { HttpError } from './client.js'
 
+const originalFetch = global.fetch
+
 beforeEach(() => {
   vi.restoreAllMocks()
+})
+
+afterEach(() => {
+  // These tests assign global.fetch directly; restoreAllMocks won't undo that.
+  global.fetch = originalFetch
 })
 
 function mockFetch(body, ok = true, status = 200) {

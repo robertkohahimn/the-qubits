@@ -59,7 +59,6 @@ export default function TheoryPane({ post }) {
             hoverBg="var(--c-white)"
             hoverColor="var(--p-blue-vibrant)"
             hoverBorderColor="var(--c-white)"
-            href="#"
             style={{ marginRight: '1rem' }}
           >
             Fav

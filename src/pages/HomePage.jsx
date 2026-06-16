@@ -14,10 +14,11 @@ export default function HomePage() {
 
   const excludeSlugs = [home?.featured?.slug, home?.theory?.slug].filter(Boolean)
   const filter = category ? { category, exclude: excludeSlugs, limit: 6 } : null
-  const { data: filtered } = usePosts(home && category ? filter : null)
+  const { data: filtered, error: filterError } = usePosts(home && category ? filter : null)
 
   if (loading) return <Loading />
   if (error) return <ErrorState message="Could not load the feed." />
+  if (filterError) return <ErrorState message="Could not load this category." />
 
   const feed = category ? filtered ?? [] : home.recent
 

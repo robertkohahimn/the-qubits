@@ -18,15 +18,24 @@ export default function ArticlePage() {
 
   const viewportRef = useRef(null)
   const [progress, setProgress] = useState(0)
+  const [trackedSlug, setTrackedSlug] = useState(slug)
   const post = data?.post
+
+  // Reset reading progress when navigating to a different article. Adjusting
+  // state during render on a changed value is the React-recommended pattern and
+  // avoids a cascading-render setState inside an effect.
+  if (slug !== trackedSlug) {
+    setTrackedSlug(slug)
+    setProgress(0)
+  }
 
   useEffect(() => {
     const el = viewportRef.current
     if (!el) return
     const handleScroll = () => {
-      const scrollTop = el.scrollTop
       const scrollHeight = el.scrollHeight - el.clientHeight
-      if (scrollHeight > 0) setProgress(Math.round((scrollTop / scrollHeight) * 100))
+      const pct = scrollHeight > 0 ? Math.round((el.scrollTop / scrollHeight) * 100) : 0
+      setProgress(Math.min(100, Math.max(0, pct)))
     }
     el.addEventListener('scroll', handleScroll)
     return () => el.removeEventListener('scroll', handleScroll)
@@ -110,14 +119,18 @@ export default function ArticlePage() {
               Previous
             </PillButton>
           ) : (
-            <PillButton color="var(--p-yellow)" href="#" style={{ flex: 1 }}>Previous</PillButton>
+            <PillButton color="var(--p-yellow)" disabled aria-disabled="true" style={{ flex: 1, opacity: 0.4, cursor: 'not-allowed' }}>
+              Previous
+            </PillButton>
           )}
           {next ? (
             <PillButton color="var(--p-blue-light)" as={Link} to={`/article/${next.slug}`} style={{ flex: 1 }}>
               Next
             </PillButton>
           ) : (
-            <PillButton color="var(--p-blue-light)" href="#" style={{ flex: 1 }}>Next</PillButton>
+            <PillButton color="var(--p-blue-light)" disabled aria-disabled="true" style={{ flex: 1, opacity: 0.4, cursor: 'not-allowed' }}>
+              Next
+            </PillButton>
           )}
         </div>
       </aside>

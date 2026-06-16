@@ -1,5 +1,7 @@
 .editorial-grid {
   display: grid;
   height: 100vh;
-  width: 100vw;
+  /* 100% avoids the horizontal scrollbar that 100vw introduces (vw includes
+     the scrollbar gutter). */
+  width: 100%;
 }

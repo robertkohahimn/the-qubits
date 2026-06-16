@@ -16,10 +16,13 @@ export function createApp({ staticDir } = {}) {
   }
 
   // Centralized error handler: ValidationError -> 400, else 500.
+  // 4xx keep their message (useful validation feedback); 5xx return a generic
+  // message so internal details (stack/driver errors) are never leaked.
   app.use((err, req, res, _next) => {
     const status = err.status ?? 500
     if (status >= 500) console.error(err)
-    res.status(status).json({ error: err.message ?? 'Internal Server Error' })
+    const message = status >= 500 ? 'Internal Server Error' : (err.message ?? 'Bad Request')
+    res.status(status).json({ error: message })
   })
 
   return app

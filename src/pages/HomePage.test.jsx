@@ -50,4 +50,11 @@ describe('HomePage', () => {
     renderAt('/')
     await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
   })
+
+  it('surfaces an error when the category-filtered request fails', async () => {
+    vi.spyOn(api, 'getHome').mockResolvedValue(home)
+    vi.spyOn(api, 'getPosts').mockRejectedValue(new Error('filter down'))
+    renderAt('/?category=Hardware')
+    await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+  })
 })
