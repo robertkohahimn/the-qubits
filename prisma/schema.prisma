@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Category {
+  Hardware
+  Algorithms
+  Theory
+  Cryptography
+}
+
+enum Complexity {
+  Entry
+  Mid
+  High
+}
+
+enum Accent {
+  purple
+  teal
+  yellow
+  orange
+  pink
+  blueLight
+  blueVibrant
+}
+
+model Post {
+  id          Int        @id @default(autoincrement())
+  slug        String     @unique
+  title       String
+  excerpt     String
+  bodyMd      String
+  author      String
+  readMinutes Int
+  complexity  Complexity
+  category    Category
+  accent      Accent
+  heroImage   String
+  codeNumber  Int
+  featured    Boolean    @default(false)
+  publishedAt DateTime
+
+  @@index([publishedAt, id])
+}

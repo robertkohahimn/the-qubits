@@ -1,0 +1,35 @@
+.pane-light {
+  background-color: var(--c-bg);
+  color: var(--c-white);
+  padding: var(--pad-outer);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.pane-light h2 {
+  font-size: 5rem;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  margin-bottom: 2rem;
+  color: var(--c-white);
+}
+
+.tag-group {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 1200px) {
+  .pane-light h2 {
+    font-size: 4.5rem;
+  }
+}

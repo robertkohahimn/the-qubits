@@ -1,0 +1,53 @@
+:root {
+  --c-bg: #151515;
+  --c-white: #FFFFFF;
+  --c-grey: #A0A0A0;
+
+  --p-orange-solid: #F37300;
+  --p-yellow: #FFC200;
+  --p-purple: #D337E1;
+  --p-blue-light: #4483FF;
+  --p-teal: #00634D;
+  --p-pink: #F27A93;
+  --p-blue-dark: #0037A8;
+  --p-grey-solid: #A0A0A0;
+  --p-orange-line: #EA6A00;
+  --p-blue-vibrant: #2965F2;
+
+  --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --hairline-dark: 4px solid #333333;
+  --pad-outer: 3.5rem;
+  --radius-pill: 999px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--c-bg);
+  color: var(--c-white);
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--c-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+h1, h2, h3 {
+  text-transform: lowercase;
+}
